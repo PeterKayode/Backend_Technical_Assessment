@@ -19,6 +19,7 @@
 
 ## Project Structure
 
+```
 Backend_Technical_Assessment/
 ├── .env
 ├── .gitignore
@@ -68,3 +69,4 @@ Backend_Technical_Assessment/
 │   ├── test_crud.py
 │   ├── __init__.py
 ├── README.md
+```

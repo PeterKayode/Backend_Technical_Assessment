@@ -15,3 +15,56 @@
 - **Get Blog Post**: `GET /api/v1/blogs/{id}`
 - **Update Blog Post**: `PUT /api/v1/blogs/{id}`
 - **Delete Blog Post**: `DELETE /api/v1/blogs/{id}`
+
+
+## Project Structure
+
+backend_mle_assessment/
+├── .env
+├── .gitignore
+├── alembic/
+│   ├── env.py
+│   ├── script.py.mako
+│   └── versions/
+├── app/
+│   ├── __init__.py
+│   ├── api/
+│   │   ├── v1/
+│   │   │   ├── endpoints/
+│   │   │   │   ├── auth.py
+│   │   │   │   ├── blog.py
+│   │   │   ├── __init__.py
+│   │   ├── __init__.py
+│   ├── core/
+│   │   ├── config.py
+│   │   ├── security.py
+│   │   ├── __init__.py
+│   ├── crud/
+│   │   ├── blog.py
+│   │   ├── user.py
+│   │   ├── __init__.py
+│   ├── db/
+│   │   ├── base.py
+│   │   ├── base_class.py
+│   │   ├── session.py
+│   │   ├── __init__.py
+│   ├── models/
+│   │   ├── blog.py
+│   │   ├── user.py
+│   │   ├── __init__.py
+│   ├── schemas/
+│   │   ├── blog.py
+│   │   ├── user.py
+│   │   ├── __init__.py
+│   ├── tasks/
+│   │   ├── ai_agent.py
+│   │   ├── __init__.py
+│   ├── main.py
+│   ├── __init__.py
+├── requirements.txt
+├── tests/
+│   ├── conftest.py
+│   ├── test_api.py
+│   ├── test_crud.py
+│   ├── __init__.py
+├── README.md

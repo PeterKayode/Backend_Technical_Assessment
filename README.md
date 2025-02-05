@@ -19,7 +19,7 @@
 
 ## Project Structure
 
-backend_mle_assessment/
+Backend_Technical_Assessment/
 ├── .env
 ├── .gitignore
 ├── alembic/

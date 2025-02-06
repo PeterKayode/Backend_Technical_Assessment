@@ -8,6 +8,7 @@ from app.core.utils import verify_password
 from app.crud.user import get_user_by_email
 from app.db.session import get_db
 from sqlalchemy.orm import Session
+from app.models.user import User
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/users/login")
 
@@ -21,7 +22,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
-async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -35,7 +36,9 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     except JWTError:
         raise credentials_exception
 
-    user = get_user_by_email(db, email=email)
+    # Fetch the user from the database based on the email in the token
+    user = db.query(User).filter(User.email == email).first()
     if user is None:
         raise credentials_exception
+    print(f"User found: {user}")  # Debug statement
     return user

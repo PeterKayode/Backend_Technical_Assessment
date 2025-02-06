@@ -4,6 +4,7 @@
 
 1. Clone the repository.
 2. Install dependencies: `pip install -r requirements.txt`.
+3. Use Run this command to create the db migrations `alembic revision --autogenerate -m "Initial migration"` and `alembic upgrade head`
 3. Run the application: `uvicorn app.main:app --reload`.
 4. Access the API documentation at `http://localhost:8000/docs`.
 

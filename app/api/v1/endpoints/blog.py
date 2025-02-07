@@ -1,22 +1,19 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.crud.blog import create_blog_post, get_blog_post, update_blog_post, delete_blog_post
+from app.crud.blog import create_blog_post, get_blog_post, delete_blog_post
 from app.schemas.blog import BlogPostCreate, BlogPostUpdate
 from app.db.session import get_db
 from app.core.security import get_current_user
 from app.models.user import User
 from app.tasks.ai_agent import generate_blog_post  # Import the AI agent
+import traceback
+from app.models.blog import BlogPost
 
 
 router = APIRouter()
 
-#Without AI agent
-# @router.post("/blogs")
-# def create_blog(blog: BlogPostCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-#     return create_blog_post(db, blog, current_user.id)
 
 # For the AI agent
-
 @router.post("/blogs")
 async def create_blog(blog: BlogPostCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """
@@ -24,7 +21,7 @@ async def create_blog(blog: BlogPostCreate, db: Session = Depends(get_db), curre
     """
     try:
         # Generate the blog post content using the AI agent
-        blog_data = await generate_blog_post(blog.title)
+        blog_data = await generate_blog_post(blog.title, blog.content)
         
         # Create the blog post in the database
         db_blog = create_blog_post(db, BlogPostCreate(**blog_data), current_user.id)
@@ -41,49 +38,34 @@ def read_blog(id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Blog post not found")
     return db_blog
 
-# @router.put("/blogs/{id}")
-# def update_blog(id: int, blog: BlogPostUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-#     db_blog = update_blog_post(db, id, blog, current_user.id)
-#     if db_blog is None:
-#         raise HTTPException(status_code=404, detail="Blog post not found")
-#     return db_blog
-
 @router.put("/blogs/{id}")
-async def update_blog(
-    id: int,
-    blog: BlogPostUpdate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    """
-    Update an existing blog post and regenerate content using the AI agent.
-    """
+async def update_blog(id: int, blog_data: BlogPostUpdate, db: Session = Depends(get_db)):
     try:
-        # Debugging: Ensure current_user is correctly passed
-        print(f"Current user: {current_user.email}")
+        blog = db.query(BlogPost).filter(BlogPost.id == id).first()
+        
+        if not blog:
+            raise HTTPException(status_code=404, detail="Blog post not found.")
+        
 
-        # Regenerate content using the AI agent (assuming blog.title is the new title)
-        updated_content = await generate_blog_post(blog.title)
+        # blog.title = blog_data.title
+        # blog.content = blog_data.content
 
-        if not isinstance(updated_content, str):
-            raise HTTPException(status_code=500, detail="Generated content is not a valid string")
+        # Generate the blog post content using the AI agent
+        blog_data = await generate_blog_post(blog.title, blog.content)
 
-        # Log the content before updating
-        print(f"Generated content for update: {updated_content[:100]}...")  # Log first 100 characters
+        blog.title = blog_data["title"]
+        blog.content = blog_data["content"]
+        
+        db.commit()
+        db.refresh(blog)
 
-        # Update the blog post in the database with the new title and regenerated content
-        updated_blog = update_blog_post(db, id, blog, current_user.id, updated_content)
-
-        if updated_blog is None:
-            raise HTTPException(status_code=404, detail="Blog post not found")
-
-        # Return the updated blog post
-        return {"message": "Blog post updated successfully", "updated_blog": updated_blog}
+        return {"message": "Blog post updated successfully.", "blog": blog}
 
     except Exception as e:
-        # Handle exceptions and raise HTTPException with the message
+        import traceback
+        print(f"Error updating blog: {str(e)}")
+        print(traceback.format_exc())
         raise HTTPException(status_code=500, detail=f"Failed to update blog post: {str(e)}")
-
 
 
 @router.delete("/blogs/{id}")

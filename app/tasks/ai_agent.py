@@ -7,7 +7,7 @@ import traceback
 
 # Load API key from environment variables
 load_dotenv()
-openai.api_key = os.getenv("AI_AGENT_KEY")
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 async def generate_blog_post(title: str, topic: str) -> dict:
     try:

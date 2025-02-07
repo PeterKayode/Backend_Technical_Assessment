@@ -9,9 +9,6 @@ import traceback
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-openai.api_key = "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"
-
-
 async def generate_blog_post(title: str, topic: str) -> dict:
     try:
         response = await openai.ChatCompletion.acreate(

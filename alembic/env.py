@@ -8,7 +8,7 @@ import sys
 # Add the project root directory to the Python path
 sys.path.append(os.getcwd())
 
-# Import your SQLAlchemy Base and models
+# Import SQLAlchemy Base and models
 from app.db.base_class import Base
 from app.models.user import User
 from app.models.blog import BlogPost
@@ -21,7 +21,7 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Add your model's MetaData object here for 'autogenerate' support
+# Add model's MetaData object here for 'autogenerate' support
 target_metadata = Base.metadata
 
 def run_migrations_offline() -> None:

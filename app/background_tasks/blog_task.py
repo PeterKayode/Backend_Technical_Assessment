@@ -1,35 +1,41 @@
-import asyncio
-from sqlalchemy.orm import Session
 from app.models.blog import BlogPost
-from app.tasks.ai_agent import generate_blog_post as async_generate_blog_post
+from app.tasks.smol_blogwriter import write_blog_post  # Synchronous version
+from sqlalchemy.orm import Session
+import json
 
-def generate_blog_content(db: Session, blog_id: int, input_content: str):
+def generate_blog_content(db: Session, blog_id: int, new_title: str, input_content: str):
     """
-    Background task: Generate blog content using the AI agent and update the blog post.
-    This function is synchronous (to be used by FastAPI BackgroundTasks), so it runs the asynchronous
-    AI generation function using asyncio.run.
+    Background task: Generate new blog content using AI and update the blog post record.
+    - db: Database session.
+    - blog_id: The ID of the blog to update.
+    - new_title: The new title provided by the user.
+    - input_content: The update instructions/content.
     """
+    blog = db.query(BlogPost).filter(BlogPost.id == blog_id).first()
+    if not blog:
+        return
+
     try:
-        # Retrieve the blog post from the database.
-        blog = db.query(BlogPost).filter(BlogPost.id == blog_id).first()
-        if not blog:
-            return
-        
-        # Update the status to "in_progress"
+        # Mark blog as in progress
         blog.status = "in_progress"
         db.commit()
-        
-        # Run the async AI generation function in the event loop.
-        result = asyncio.run(async_generate_blog_post(blog.title, input_content))
-        
-        # Update the blog with the generated content.
-        blog.title = result.get("title", blog.title)
-        blog.content = result.get("content", "")
-        blog.status = "completed"
+
+        # Generate the blog post using write_blog_post
+        # Pass the new title as well, so the AI uses the updated title context.
+        result = write_blog_post(new_title, input_content)
+
+        # Check if generation was successful and update the blog post record
+        if result:
+            blog.title = result.get("title", new_title)
+            blog.content = result.get("content", "")
+            if isinstance(blog.content, dict):
+                blog.content = json.dumps(blog.content)
+            blog.status = "completed"
+        else:
+            blog.status = "failed"
+
         db.commit()
     except Exception as e:
-        # If an error occurs, mark the blog as failed.
-        if blog:
-            blog.status = "failed"
-            db.commit()
+        blog.status = "failed"
+        db.commit()
         print("Error in background task generate_blog_content:", e)

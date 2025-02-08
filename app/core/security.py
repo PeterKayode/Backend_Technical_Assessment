@@ -4,8 +4,6 @@ from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from app.core.config import settings
-from app.core.utils import verify_password
-from app.crud.user import get_user_by_email
 from app.db.session import get_db
 from sqlalchemy.orm import Session
 from app.models.user import User

@@ -1,8 +1,11 @@
 # AI-Powered Blog Post Creation API
 
-An API built with FastAPI that enables users to register, log in, and manage blog posts. The application integrates an AI agent to generate blog content automatically using background tasks. This README provides detailed information about the project, setup instructions, API endpoints, and guidelines for frontend developers.
+## Overview
+This API allows users to **create**, **read**, **update**, and **delete** blog posts, with automated content generation powered by an AI module (`smol_blogwriter.py`). Content generation tasks run in the background, ensuring smooth performance and quick API responses.
 
-## Table of Contents
+---
+
+## **Table of Contents**
 
 - [Features](#features)
 - [Technologies Used](#technologies-used)
@@ -14,13 +17,16 @@ An API built with FastAPI that enables users to register, log in, and manage blo
   - [Database Migrations](#database-migrations)
 - [Running the Application](#running-the-application)
 - [API Documentation](#api-documentation)
+- [AI Content Generation (smol_blogwriter.py)](#ai-content-generation)
+- [Background Task Workflow](#background-taskworkflow)
+- [Error Handling](#error-handling)
 - [Testing](#testing)
 - [For Frontend Developers](#for-frontend-developers)
 - [Future Enhancements](#future-enhancements)
-- [License](#license)
-- [Contact](#contact)
 
-## Features
+---
+
+## **Features**
 
 - **User Authentication:**  
   - User registration (`POST /api/v1/register`)
@@ -38,7 +44,9 @@ An API built with FastAPI that enables users to register, log in, and manage blo
   - Background task processing for long-running AI operations.
   - Status tracking for blog post generation (e.g., "pending", "in_progress", "completed", "failed").
 
-## Technologies Used
+---
+
+## **Technologies Used**
 
 - **FastAPI:** For building the API.
 - **SQLAlchemy:** ORM for database interactions.
@@ -49,7 +57,9 @@ An API built with FastAPI that enables users to register, log in, and manage blo
 - **Asyncio:** To support asynchronous tasks.
 - **OpenAI API:** For AI-generated content.
 
-## Project Structure
+---
+
+## **Project Structure**
 
 ```
 Backend_Technical_Assessment/
@@ -92,19 +102,20 @@ Backend_Technical_Assessment/
 │   ├── tasks/
 │   │   ├── ai_agent.py
 │   │   ├── __init__.py
+│   │   ├── background_task.py
+│   │   ├── smol_blogwriter.py
 │   ├── main.py
 │   ├── __init__.py
-|   ├── tasks/
-│   |    ├── __init__.py
-│   |    ├── background_task.py
 ├── requirements.txt
 ├── tests/
-│   ├── test_crud.py
+│   ├── test_api.py
 │   ├── __init__.py
 ├── README.md
 ```
 
-## Database Structure
+---
+
+## **Database Structure**
 
 ### BlogPost Model
 
@@ -158,9 +169,9 @@ Backend_Technical_Assessment/
   - In the **User** model, the `blogs` attribute is a collection of all the blog posts that the user has created.
   - In the **BlogPost** model, the `owner_id` field is used as a foreign key to reference the associated user, and the `owner` relationship allows easy access to that user.
 
+---
 
-
-## Setup and Installation
+## **Setup and Installation**
 
 ### Prerequisites
 
@@ -180,46 +191,83 @@ ACCESS_TOKEN_EXPIRE_MINUTES=30
 OPENAI_API_KEY=your_OPENAI_API_KEY_here
 ```
 
-### Database Migrations
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/your-repo/blog-api.git
+   cd blog-api
+   ```
 
-This project uses Alembic for database migrations. To set up or update your database schema:
+2. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-1. **Initialize Alembic (if not already initialized):**
+4. **Initialize Alembic (if not already initialized):**
 
    ```
    alembic init alembic
    ```
 
-2. **Generate a migration script:**
+5. **Generate a migration script:**
 
    ```
    alembic revision --autogenerate -m "Initial migration"
    ```
 
-3. **Apply migrations:**
+6. **Apply migrations:**
 
    ```
    alembic upgrade head
    ```
 
-## Running the Application
+7. **Run the API:**
+   ```bash
+   uvicorn app.main:app --reload
+   ```
 
-To start the FastAPI application:
-
-```
-uvicorn app.main:app --reload
-```
 
 The API will be available at [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
-## API Documentation
+---
+
+## **API Documentation**
 
 FastAPI automatically generates interactive API documentation:
 
 - **Swagger UI:** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 - **ReDoc:** [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
 
-## Testing
+---
+
+## **AI Content Generation (smol_blogwriter.py)**
+- **Location:** `app/tasks/smol_blogwriter.py`
+- **Function:** `write_blog_post(title, content)`
+- **Returns:**
+  ```json
+  {
+    "title": "Optimized Blog Title",
+    "content": "This is the AI-generated blog content."
+  }
+  ```
+- **Integration:** The background task `generate_blog_content` in `blog_task.py` handles invoking this AI module.
+
+---
+
+## **Background Task Workflow**
+1. **User submits a blog post.**
+2. **`generate_blog_content`** starts running in the background.
+3. **AI generates content** using `write_blog_post()`.
+4. **Blog status** updates from `pending` → `in_progress` → `completed`.
+5. **Error handling** ensures status updates to `failed` if any issue occurs.
+
+---
+
+## **Error Handling**
+- **404 Not Found:** When blog post ID doesn’t exist.
+
+---
+
+## **Testing**
 
 The project includes a suite of tests using Pytest. To run the tests:
 
@@ -229,7 +277,9 @@ pytest
 
 Tests cover user registration, login, and CRUD operations on blog posts, including background task processing for AI-generated content.
 
-## For Frontend Developers
+---
+
+## ***For Frontend Developers***
 
 ### API Endpoints Overview
 
@@ -322,14 +372,17 @@ Tests cover user registration, login, and CRUD operations on blog posts, includi
 - **Status Field:**  
   The blog post model includes a `status` field to indicate the progress of AI-generated content. Frontend developers can poll the blog endpoint to check the status of a post.
 
-## Future Enhancements
+---
+
+## **Future Enhancements**
 
 - **Improved Error Handling:** Enhance error messages and logging.
 - **Pagination for Blog Posts:** Add pagination support for the GET /blogs endpoint.
 - **Caching:** Implement caching for improved performance.
 - **Extended Testing:** Increase test coverage and integrate continuous integration (CI).
 
+---
 
-## Contact
+## **Contact**
 
 For questions or further information, please contact [peterkayode618@gmail.com](mailto:peterkayode618@gmail.com.com).

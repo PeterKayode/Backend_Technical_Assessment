@@ -8,11 +8,16 @@ from smolagents import (
 from smoltools.jinaai import scrape_page_with_jina_ai, search_facts_with_jina_ai
 from dotenv import load_dotenv
 import os
+import litellm
+import openai
+litellm._turn_on_debug = True  
+import json
+
 
 load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
+model = LiteLLMModel(model_id="gpt-4o-mini", api_key=openai.api_key)
 
-# Initialize the model
-model = LiteLLMModel(model_id="gpt-4o-mini")
 
 # Research Agent
 research_agent = ToolCallingAgent(
@@ -80,7 +85,7 @@ blog_manager = CodeAgent(
     # """
 )
 
-def write_blog_post(topic, output_file="blog_post.md"):
+def write_blog_post(topic, input_content, output_file="blog_post.md"):
     """
     Creates a blog post on the given topic using multiple agents
     
@@ -89,18 +94,27 @@ def write_blog_post(topic, output_file="blog_post.md"):
         output_file (str): The filename to save the markdown post
     """
     result = blog_manager.run(f"""Create a blog post about: {topic}
+    Addtional instructions: {input_content}
     1. First, research the topic thoroughly, focus on specific products and sources
     2. Then, write an engaging blog post not just a list
     3. Finally, edit and polish the content
     """)
     
+    # Convert result to a string if it's a dict.
+    if isinstance(result, dict):
+        result_str = json.dumps(result, indent=4)
+    else:
+        result_str = result
+
     with open(output_file, 'w', encoding='utf-8') as f:
-        f.write(result)
+        f.write(result_str)
     print(f"Blog post has been saved to {output_file}")
-    
-    return result
+
+    # Return the data with content as a string.
+    return {"title": topic, "content": result_str}
+
 
 # print(blog_manager.system_prompt_template)
-topic = "Create a blog post about the top 5 products released at CES 2025 so far. Please include specific product names and sources"
-print(topic)
-write_blog_post(topic)
+# topic = "Create a blog post about the top 5 products released at CES 2025 so far. Please include specific product names and sources"
+# print(topic)
+# write_blog_post(topic)

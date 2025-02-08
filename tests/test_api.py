@@ -5,16 +5,16 @@ from app.main import app  # Ensure this is your FastAPI app
 client = TestClient(app)
 
 # Hard-coded token for endpoints requiring authentication
-token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMDEwMUBleGFtcGxlLmNvbSIsImV4cCI6MTczODk3MjExMX0.lSuBzdiD4c62120cNXM32LF0MLg1ZB2k-jR-qJSti_M"
+token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMDEwQGV4YW1wbGUuY29tIiwiZXhwIjoxNzM5MDA5NTg5fQ.er__1jbUsmx05jnLeAGVcs0dDVLs1Zu1XT0qpIu1ZTI"
 headers = {"Authorization": f"Bearer {token}"}
 
 def test_create_user():
-    response = client.post("/api/v1/register", json={"email": "test013@example.com", "password": "password"})
+    response = client.post("/api/v1/register", json={"email": "test014@example.com", "password": "password"})
     assert response.status_code == 200
-    assert response.json()["email"] == "test013@example.com"
+    assert response.json()["email"] == "test014@example.com"
 
 def test_login():
-    response = client.post("/api/v1/login", json={"email": "test013@example.com", "password": "password"})
+    response = client.post("/api/v1/login", json={"email": "test014@example.com", "password": "password"})
 
     assert response.status_code == 200
     assert "access_token" in response.json()

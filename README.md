@@ -78,6 +78,9 @@ Backend_Technical_Assessment/
 │   │   │   │   ├── blog.py
 │   │   │   ├── __init__.py
 │   │   ├── __init__.py
+│   ├── background_tasks/
+│   │   ├── blog_task.py
+│   │   ├── __init__.py
 │   ├── core/
 │   │   ├── config.py
 │   │   ├── security.py
@@ -102,7 +105,6 @@ Backend_Technical_Assessment/
 │   ├── tasks/
 │   │   ├── ai_agent.py
 │   │   ├── __init__.py
-│   │   ├── background_task.py
 │   │   ├── smol_blogwriter.py
 │   ├── main.py
 │   ├── __init__.py
@@ -193,8 +195,8 @@ OPENAI_API_KEY=your_OPENAI_API_KEY_here
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/your-repo/blog-api.git
-   cd blog-api
+   git clone https://github.com/PeterKayode/Backend_Technical_Assessment
+   cd Backend_Technical_Assessment
    ```
 
 2. **Install dependencies:**
